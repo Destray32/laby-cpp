@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <cstdlib>
+#include <algorithm>
 
 void PunktyStartoweIni(int&);
 
@@ -18,6 +19,7 @@ int main()
 
 	std::vector<std::pair<int, int>> cordyJedynek(n);
 	std::vector<std::string> mapaPokoju(n);
+	std::vector<std::pair<int, int> > historiaKordynatow;
 
 	std::cout << "Podaj " << n << " wierszy mapy pokoju\n";
 	for (int i = 0; i < n; i++)
@@ -54,6 +56,10 @@ int main()
 
 	// glowna pêtla - zliczanie scian w pokojach
 	std::pair<int, int> ostatnieKordynaty;
+	bool h1 = false;
+	bool h2 = false;
+	bool h3 = false;
+	bool h4 = false;
 	for (int i = 0; i < mapaPokoju.size(); i++)
 	{
 		for (int j = 0; j < mapaPokoju[i].size(); j++)
@@ -61,23 +67,53 @@ int main()
 
 			if (mapaPokoju[i][j] == '.')
 			{
-				// tu trzeba sprawdzic czy sa sciany prawo lewo gora dol
-
-				// musimy zapisac wspolrzedne ostatniej kropki i potem porownac ja z kolejna
-				// napotkana kropka. jesli roznica jest > 1 to znaczy ze jest to inny pokoj
-
-				if (abs(ostatnieKordynaty.first - i) > 1 || abs(ostatnieKordynaty.second - j) > 1)
+					// sprawdzamy czy jest w kordynatach ktore przeszlismy
+				if (std::find(historiaKordynatow.begin(), historiaKordynatow.end(), std::make_pair(i, j + 1)) == historiaKordynatow.end())
 				{
-					// to jest nowy pokoj
-					if (ktoryPokoj > 1)
-						ktoryPokoj = 0;
-					else
-						ktoryPokoj = 1;
+					// nie zostalo znalezione w historii
+					h1 = true;
+				}
+				else
+				{
+					h1 = false;
+				}
+				if (std::find(historiaKordynatow.begin(), historiaKordynatow.end(), std::make_pair(i, j - 1)) == historiaKordynatow.end())
+				{
+					// nie zostalo znalezione w historii
+					h2 = true;
+				}
+				else
+				{
+					h2 = false;
+				}
+				if (std::find(historiaKordynatow.begin(), historiaKordynatow.end(), std::make_pair(i + 1, j)) == historiaKordynatow.end())
+				{
+					// nie zostalo znalezione w historii
+					h3 = true;
+				}
+				else
+				{
+					h3 = false;
+				}
+				if (std::find(historiaKordynatow.begin(), historiaKordynatow.end(), std::make_pair(i - 1, j)) == historiaKordynatow.end())
+				{
+					// nie zostalo znalezione w historii
+					h4 = true;
+				}
+				else
+				{
+					h4 = false;
+				}
+
+				
+				if (h1 && h2 && h3 && h4)
+				{
+					ktoryPokoj++;
 				}
 
 				switch (ktoryPokoj)
 				{
-				case 0:
+				case 1:
 				{
 					if (mapaPokoju[i][j + 1] == '#')
 					{
@@ -97,7 +133,7 @@ int main()
 					}
 				}
 				break;
-				case 1:
+				case 2:
 					if (mapaPokoju[i][j + 1] == '#')
 					{
 						scianyPokoj2++;
@@ -121,6 +157,8 @@ int main()
 
 				ostatnieKordynaty.first = i;
 				ostatnieKordynaty.second = j;
+
+				historiaKordynatow.push_back({ i, j });
 			}
 		}
 	}
@@ -141,8 +179,10 @@ int main()
 	}
 	std::cout << "Ilosc scian w pokoju pierwszym :" << scianyPokoj1 << std::endl;
 	std::cout << "Ilosc scian w pokoju drugim :" << scianyPokoj2 << std::endl;
-}
+	std::cout << "Test: " << cordyJedynek[1].first << " " << cordyJedynek[1].second << std::endl;
+	std::cout << "Test: " << cordyJedynek[3].first << " " << cordyJedynek[3].second << std::endl;
 
+}
 // notatki
 // inny sposob na podejscie do problemu:
 // najpierw niech program z inputu obliczy gdzie sa jakie pokoje i od razu zna ich wartosc
@@ -163,3 +203,4 @@ void PunktyStartoweIni(int& n)
 	std::cout << "Podaj ilosc punktow startowych\n";
 	std::cin >> n;
 }
+

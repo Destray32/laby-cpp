@@ -3,8 +3,6 @@
 #include <vector>
 #include <string>
 #include <cstdlib>
-#include <algorithm>
-#include <map>
 
 void PunktyStartoweIni(int&);
 
@@ -18,12 +16,9 @@ int main()
 
 	PunktyStartoweIni(n);
 
-	std::vector<std::pair<int, int>> cordyJedynek(n);
+	std::vector< std::pair<int, int> > cordyJedynek(n);
+	std::vector< std::pair<int, int> > cordHis;
 	std::vector<std::string> mapaPokoju(n);
-	std::vector<std::pair<int, int> > historiaKordynatow;
-	std::map<std::pair<int, int>, std::string> przynalezKord;
-	
-
 
 	std::cout << "Podaj " << n << " wierszy mapy pokoju\n";
 	for (int i = 0; i < n; i++)
@@ -60,10 +55,6 @@ int main()
 
 	// glowna pêtla - zliczanie scian w pokojach
 	std::pair<int, int> ostatnieKordynaty;
-	bool h1 = false;
-	bool h2 = false;
-	bool h3 = false;
-	bool h4 = false;
 	for (int i = 0; i < mapaPokoju.size(); i++)
 	{
 		for (int j = 0; j < mapaPokoju[i].size(); j++)
@@ -71,7 +62,17 @@ int main()
 
 			if (mapaPokoju[i][j] == '.')
 			{
-				
+				// sprawdzenie czy punkt dookola nie styka sie z zadna jedynka
+				if
+					(
+					std::find(cordHis.begin(), cordHis.end(), std::make_pair(i, j + 1)) == cordHis.end()	&&
+					std::find(cordHis.begin(), cordHis.end(), std::make_pair(i, j - 1)) == cordHis.end()	&&
+					std::find(cordHis.begin(), cordHis.end(), std::make_pair(i + 1, j)) == cordHis.end()	&&
+					std::find(cordHis.begin(), cordHis.end(), std::make_pair(i - 1, j)) == cordHis.end()
+					)
+				{
+					ktoryPokoj++;
+				}
 
 				switch (ktoryPokoj)
 				{
@@ -120,7 +121,7 @@ int main()
 				ostatnieKordynaty.first = i;
 				ostatnieKordynaty.second = j;
 
-				historiaKordynatow.push_back({ i, j });
+				cordHis.push_back({ i, j });
 			}
 		}
 	}
@@ -134,6 +135,12 @@ int main()
 		std::cout << std::endl;
 	}
 
+	std::cout << "Historia wszystkich kordynatów: \n";
+	for (auto h : cordHis)
+	{
+		std::cout << h.first << " " << h.second << std::endl;
+	}
+
 	std::cout << "Kordynaty jedynek\n";
 	for (auto j : cordyJedynek)
 	{
@@ -141,23 +148,16 @@ int main()
 	}
 	std::cout << "Ilosc scian w pokoju pierwszym :" << scianyPokoj1 << std::endl;
 	std::cout << "Ilosc scian w pokoju drugim :" << scianyPokoj2 << std::endl;
-	std::cout << "Test: " << cordyJedynek[1].first << " " << cordyJedynek[1].second << std::endl;
-	std::cout << "Test: " << cordyJedynek[3].first << " " << cordyJedynek[3].second << std::endl;
-	std::cout << "Ktory pokoj" << ktoryPokoj << std::endl;
 }
+
 // notatki
-// inny sposob na podejscie do problemu:
-// najpierw niech program z inputu obliczy gdzie sa jakie pokoje i od razu zna ich wartosc
+// nowy algorytm
+// jesli nowa jedynka jest oddalona tylko o 1 w osi x lub osi y(tylko i wylacznie w jednym na raz)
+// od jakiegokolwiek punktu w historii kordynatów to jest to ten sam pokoj
+// jesl nie to jest to inny pokoj
 
-
-// !!
-// wpisujemy mape pokoju > iterujemy po mapie, gdy napotkamy kropke liczymy dookola sciany
-// !!
-// TERAZ: Zczytac wspolrzedne kazdej kropki // ZROBIONE
-// i zliczyc ile jest scian wokol niej // ZROBIONE
-
-// pytanie: jak okreslic z jestesmy w tym samym pokoju?
-// odpowiedz jezeli roznica cordow jest mniejsza niz 2 to jestesmy w tym samym pokoju
+// problem z przekatnymi ale - jesl sprawdzamy po przekatnej to przecie¿ liczby nie sa w 
+// historii wiec chyba mozna sprobwac sprawdzania?
 
 
 void PunktyStartoweIni(int& n)
@@ -165,4 +165,3 @@ void PunktyStartoweIni(int& n)
 	std::cout << "Podaj ilosc punktow startowych\n";
 	std::cin >> n;
 }
-

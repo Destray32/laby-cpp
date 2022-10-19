@@ -4,6 +4,7 @@
 #include <string>
 #include <cstdlib>
 #include <algorithm>
+#include <map>
 
 void PunktyStartoweIni(int&);
 
@@ -20,6 +21,9 @@ int main()
 	std::vector<std::pair<int, int>> cordyJedynek(n);
 	std::vector<std::string> mapaPokoju(n);
 	std::vector<std::pair<int, int> > historiaKordynatow;
+	std::map<std::pair<int, int>, std::string> przynalezKord;
+	
+
 
 	std::cout << "Podaj " << n << " wierszy mapy pokoju\n";
 	for (int i = 0; i < n; i++)
@@ -67,49 +71,7 @@ int main()
 
 			if (mapaPokoju[i][j] == '.')
 			{
-					// sprawdzamy czy jest w kordynatach ktore przeszlismy
-				if (std::find(historiaKordynatow.begin(), historiaKordynatow.end(), std::make_pair(i, j + 1)) == historiaKordynatow.end())
-				{
-					// nie zostalo znalezione w historii
-					h1 = true;
-				}
-				else
-				{
-					h1 = false;
-				}
-				if (std::find(historiaKordynatow.begin(), historiaKordynatow.end(), std::make_pair(i, j - 1)) == historiaKordynatow.end())
-				{
-					// nie zostalo znalezione w historii
-					h2 = true;
-				}
-				else
-				{
-					h2 = false;
-				}
-				if (std::find(historiaKordynatow.begin(), historiaKordynatow.end(), std::make_pair(i + 1, j)) == historiaKordynatow.end())
-				{
-					// nie zostalo znalezione w historii
-					h3 = true;
-				}
-				else
-				{
-					h3 = false;
-				}
-				if (std::find(historiaKordynatow.begin(), historiaKordynatow.end(), std::make_pair(i - 1, j)) == historiaKordynatow.end())
-				{
-					// nie zostalo znalezione w historii
-					h4 = true;
-				}
-				else
-				{
-					h4 = false;
-				}
-
 				
-				if (h1 && h2 && h3 && h4)
-				{
-					ktoryPokoj++;
-				}
 
 				switch (ktoryPokoj)
 				{
@@ -181,7 +143,7 @@ int main()
 	std::cout << "Ilosc scian w pokoju drugim :" << scianyPokoj2 << std::endl;
 	std::cout << "Test: " << cordyJedynek[1].first << " " << cordyJedynek[1].second << std::endl;
 	std::cout << "Test: " << cordyJedynek[3].first << " " << cordyJedynek[3].second << std::endl;
-
+	std::cout << "Ktory pokoj" << ktoryPokoj << std::endl;
 }
 // notatki
 // inny sposob na podejscie do problemu:

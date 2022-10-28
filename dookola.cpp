@@ -14,7 +14,8 @@ int main()
 	std::pair<int, int> punktStartowy{ 0,0 };
 	std::vector<std::pair<int, int> > punktyStack, hisPunktow;
 
-	// pierwsze dane wejsciowe: ilosc punktów startowych
+	// pierwsze dane wejsciowe
+	std::cout << "Podaj jaka ilosc wierszy ma miec pokoj: \n";
 	std::cin >> n;
 	std::vector<std::string> mapaPokoju(n);
 
@@ -30,7 +31,7 @@ int main()
 	punktyStack.push_back(punktStartowy);
 
 
-	// na poczatku na staku jest punkt startowy
+	// glowna petla dzialajaca tylko gdy istnieje pozycja na stacku
 	while (!punktyStack.empty())
 	{
 		std::cout << "Ostatni punkt na stacku x: " << punktyStack[punktyStack.size() - 1].first << " y: " << punktyStack[punktyStack.size() - 1].second << '\n';
@@ -93,12 +94,7 @@ int main()
 		std::cin.get();
 	}
 
-	std::cout << "\n";
-	for (auto w : mapaPokoju)
-	{
-		std::cout << w << std::endl;
-	}
-
+	// zliczenie scian kawa³ków pokoju znajdujacych sie w historii
 	for (auto punkt : hisPunktow)
 	{
 		if (mapaPokoju[punkt.first - 1][punkt.second] == '#')
@@ -119,21 +115,30 @@ int main()
 		}
 	}
 
-	std::cout << "ILOSC SCIAN w pokoju z podanego punktu startowego: " << liczbaScian;
+	std::cout << "Ilosc scian w pokoju z podanego punktu startowego: " << liczbaScian;
 
 	return 0;
 }
 
+/* void DodajStack
+* Funkcja dodaje do konteneru stacku wybrane pozycje podane jako argumenty
+*/
 void DodajStack(int posX, int posY, std::vector<std::pair<int, int> >& kontenerStack)
 {
 	kontenerStack.push_back({ posX, posY });
 }
 
+/* bool PrzeszukajHistorie
+* Funkcja sprawdza czy sprecyzowana pozycja (x,y) wystêpuje w kontenerze trackuj¹cym historiê. True jeœli nie znajduje siê, false 
+*/
 bool PrzeszukajHistorie(int posX, int posY, std::vector<std::pair<int, int> >& kontenerHistori)
 {
 	return std::find(kontenerHistori.begin(), kontenerHistori.end(), std::make_pair(posX, posY)) == kontenerHistori.end();
 }
 
+/* void DodajHistoriê
+* Funkcja dodaje pozycjê do historii, po uprzednim sprawdzeniu czy pozycja ta nie pojawi³a siê ju¿ wczeœniej w historii
+*/
 void DodajHistorie(int posX, int posY, std::vector<std::pair<int, int> >& kontenerHistori, std::vector<std::pair<int, int> >& kontenerStack, size_t stackSize)
 {
 	if (PrzeszukajHistorie(posX, posY, kontenerHistori))

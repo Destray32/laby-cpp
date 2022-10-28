@@ -1,29 +1,96 @@
 #include <iostream>
-
 #include <vector>
 #include <string>
-#include <cstdlib>
+#include <algorithm>
 
-void PunktyStartoweIni(int&);
+void DodajStack(int posX, int posY, std::vector<std::pair<int, int> >& kontenerStack);
+bool PrzeszukajHistorie(int posX, int posY, std::vector<std::pair<int, int> >& kontenerHistori);
+void DodajHistorie(int posX, int posY, std::vector<std::pair<int, int> >& kontenerHistori, std::vector<std::pair<int, int> >& kontenerStack, size_t stackSize);
 
 int main()
 {
 	int		n = 0;
-	int		iter = 0;
-	int		scianyPokoj1 = 0;
-	int 	scianyPokoj2 = 0;
-	int		ktoryPokoj = 0;
+	int		liczbaScian = 0;
+	std::pair<int, int> punktStartowy{ 0,0 };
+	std::vector<std::pair<int, int> > punktyStack, hisPunktow;
 
-	PunktyStartoweIni(n);
-
-	std::vector< std::pair<int, int> > cordyJedynek(n);
-	std::vector< std::pair<int, int> > cordHis;
+	// pierwsze dane wejsciowe: ilosc punktów startowych
+	std::cin >> n;
 	std::vector<std::string> mapaPokoju(n);
 
 	std::cout << "Podaj " << n << " wierszy mapy pokoju\n";
+
 	for (int i = 0; i < n; i++)
 	{
 		std::cin >> mapaPokoju[i];
+	}
+
+	std::cout << "Podaj punkt startowy\n";
+	std::cin >> punktStartowy.first >> punktStartowy.second;
+	punktyStack.push_back(punktStartowy);
+
+
+	// na poczatku na staku jest punkt startowy
+	while (!punktyStack.empty())
+	{
+		std::cout << "Ostatni punkt na stacku x: " << punktyStack[punktyStack.size() - 1].first << " y: " << punktyStack[punktyStack.size() - 1].second << '\n';
+		size_t stackSize = punktyStack.size() - 1;
+
+		std::cout << "Punkty na stacku\n";
+		for (auto s_v : punktyStack)
+		{
+			std::cout << s_v.first << " " << s_v.second << '\n';
+		}
+
+		std::cout << "Punkty w historii\n";
+		for (auto h_v : hisPunktow)
+		{
+			std::cout << h_v.first << " " << h_v.second << '\n';
+		}
+
+
+		// gora
+		if (mapaPokoju[punktyStack[stackSize].first - 1][punktyStack[stackSize].second] == '.' && PrzeszukajHistorie(punktyStack[stackSize].first - 1, punktyStack[stackSize].second, hisPunktow))
+		{
+			// poprzedni punkt pushujemy do historii
+			DodajHistorie(punktyStack[stackSize].first, punktyStack[stackSize].second, hisPunktow, punktyStack, stackSize);
+
+			// dodajemy punkt do którego chcemy przejœæ na stack
+			DodajStack(punktyStack[stackSize].first - 1, punktyStack[stackSize].second, punktyStack);
+			
+		}
+		// prawo
+		else if (mapaPokoju[punktyStack[stackSize].first][punktyStack[stackSize].second + 1] == '.' && PrzeszukajHistorie(punktyStack[stackSize].first, punktyStack[stackSize].second + 1, hisPunktow))
+		{
+			DodajHistorie(punktyStack[stackSize].first, punktyStack[stackSize].second, hisPunktow, punktyStack, stackSize);
+
+			DodajStack(punktyStack[stackSize].first, punktyStack[stackSize].second + 1, punktyStack);
+
+		}
+		// dó³
+		else if (mapaPokoju[punktyStack[stackSize].first + 1][punktyStack[stackSize].second] == '.' && PrzeszukajHistorie(punktyStack[stackSize].first + 1, punktyStack[stackSize].second, hisPunktow))
+		{
+			DodajHistorie(punktyStack[stackSize].first, punktyStack[stackSize].second, hisPunktow, punktyStack, stackSize);
+
+			DodajStack(punktyStack[stackSize].first + 1, punktyStack[stackSize].second, punktyStack);
+
+		}
+		// lewo
+		else if (mapaPokoju[punktyStack[stackSize].first][punktyStack[stackSize].second - 1] == '.' && PrzeszukajHistorie(punktyStack[stackSize].first, punktyStack[stackSize].second - 1, hisPunktow))
+		{
+			DodajHistorie(punktyStack[stackSize].first, punktyStack[stackSize].second, hisPunktow, punktyStack, stackSize);
+
+			DodajStack(punktyStack[stackSize].first, punktyStack[stackSize].second - 1, punktyStack);
+
+		}
+		// brak valid pokojow w poblizu
+		else
+		{
+			DodajHistorie(punktyStack[stackSize].first, punktyStack[stackSize].second, hisPunktow, punktyStack, stackSize);
+			punktyStack.pop_back();
+		}
+
+		std::cin.get();
 	}
 
 	std::cout << "\n";
@@ -32,136 +99,44 @@ int main()
 		std::cout << w << std::endl;
 	}
 
-	// dwuwymiarowa tablica
-	std::vector<std::vector<int>> v(n, std::vector<int>(n, 0));
-
-	for (int i = 0; i < mapaPokoju.size(); i++)
+	for (auto punkt : hisPunktow)
 	{
-		for (int j = 0; j < mapaPokoju[i].size(); j++)
+		if (mapaPokoju[punkt.first - 1][punkt.second] == '#')
 		{
-			if (mapaPokoju[i][j] == '.')
-			{
-				v[i][j] = 1;
-				cordyJedynek[iter].first = i;
-				cordyJedynek[iter].second = j;
-				iter++;
-			}
-			else if (mapaPokoju[i][j] == '#')
-			{
-				v[i][j] = 0;
-			}
+			liczbaScian++;
+		}
+		if (mapaPokoju[punkt.first][punkt.second + 1] == '#')
+		{
+			liczbaScian++;
+		}
+		if (mapaPokoju[punkt.first + 1][punkt.second] == '#')
+		{
+			liczbaScian++;
+		}
+		if (mapaPokoju[punkt.first][punkt.second - 1] == '#')
+		{
+			liczbaScian++;
 		}
 	}
 
-	// glowna pêtla - zliczanie scian w pokojach
-	std::pair<int, int> ostatnieKordynaty;
-	for (int i = 0; i < mapaPokoju.size(); i++)
-	{
-		for (int j = 0; j < mapaPokoju[i].size(); j++)
-		{
+	std::cout << "ILOSC SCIAN w pokoju z podanego punktu startowego: " << liczbaScian;
 
-			if (mapaPokoju[i][j] == '.')
-			{
-				// sprawdzenie czy punkt dookola nie styka sie z zadna jedynka
-				if
-					(
-					std::find(cordHis.begin(), cordHis.end(), std::make_pair(i, j + 1)) == cordHis.end()	&&
-					std::find(cordHis.begin(), cordHis.end(), std::make_pair(i, j - 1)) == cordHis.end()	&&
-					std::find(cordHis.begin(), cordHis.end(), std::make_pair(i + 1, j)) == cordHis.end()	&&
-					std::find(cordHis.begin(), cordHis.end(), std::make_pair(i - 1, j)) == cordHis.end()
-					)
-				{
-					ktoryPokoj++;
-				}
-
-				switch (ktoryPokoj)
-				{
-				case 1:
-				{
-					if (mapaPokoju[i][j + 1] == '#')
-					{
-						scianyPokoj1++;
-					}
-					if (mapaPokoju[i][j - 1] == '#')
-					{
-						scianyPokoj1++;
-					}
-					if (mapaPokoju[i + 1][j] == '#')
-					{
-						scianyPokoj1++;
-					}
-					if (mapaPokoju[i - 1][j] == '#')
-					{
-						scianyPokoj1++;
-					}
-				}
-				break;
-				case 2:
-					if (mapaPokoju[i][j + 1] == '#')
-					{
-						scianyPokoj2++;
-					}
-					if (mapaPokoju[i][j - 1] == '#')
-					{
-						scianyPokoj2++;
-					}
-					if (mapaPokoju[i + 1][j] == '#')
-					{
-						scianyPokoj2++;
-					}
-					if (mapaPokoju[i - 1][j] == '#')
-					{
-						scianyPokoj2++;
-					}
-					break;
-				default:
-					break;
-				}
-
-				ostatnieKordynaty.first = i;
-				ostatnieKordynaty.second = j;
-
-				cordHis.push_back({ i, j });
-			}
-		}
-	}
-
-	for (auto i : v)
-	{
-		for (auto j : i)
-		{
-			std::cout << j << " ";
-		}
-		std::cout << std::endl;
-	}
-
-	std::cout << "Historia wszystkich kordynatów: \n";
-	for (auto h : cordHis)
-	{
-		std::cout << h.first << " " << h.second << std::endl;
-	}
-
-	std::cout << "Kordynaty jedynek\n";
-	for (auto j : cordyJedynek)
-	{
-		std::cout << j.first << " " << j.second << std::endl;
-	}
-	std::cout << "Ilosc scian w pokoju pierwszym :" << scianyPokoj1 << std::endl;
-	std::cout << "Ilosc scian w pokoju drugim :" << scianyPokoj2 << std::endl;
+	return 0;
 }
 
-// notatki
-// nowy algorytm
-// jesli nowa jedynka jest oddalona tylko o 1 w osi x lub osi y(tylko i wylacznie w jednym na raz)
-// od jakiegokolwiek punktu w historii kordynatów to jest to ten sam pokoj
-// jesl nie to jest to inny pokoj
-
-// problem z przekatnymi ale - jesl sprawdzamy po przekatnej to przecie¿ liczby nie sa w 
-// historii wiec chyba mozna sprobwac sprawdzania?
-
-
-void PunktyStartoweIni(int& n)
+void DodajStack(int posX, int posY, std::vector<std::pair<int, int> >& kontenerStack)
 {
-	std::cout << "Podaj ilosc punktow startowych\n";
-	std::cin >> n;
+	kontenerStack.push_back({ posX, posY });
 }
+
+bool PrzeszukajHistorie(int posX, int posY, std::vector<std::pair<int, int> >& kontenerHistori)
+{
+	return std::find(kontenerHistori.begin(), kontenerHistori.end(), std::make_pair(posX, posY)) == kontenerHistori.end();
+}
+
+void DodajHistorie(int posX, int posY, std::vector<std::pair<int, int> >& kontenerHistori, std::vector<std::pair<int, int> >& kontenerStack, size_t stackSize)
+{
+	if (PrzeszukajHistorie(posX, posY, kontenerHistori))
+		kontenerHistori.push_back(kontenerStack[stackSize]);
+}
+
